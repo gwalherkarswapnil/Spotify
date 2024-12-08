@@ -6,42 +6,43 @@
 //
 import SwiftUI
 
+// Add Playlist View
 struct AddPlaylistView: View {
+    @Environment(\.presentationMode) var presentationMode
     @ObservedObject var viewModel: SpotifyHomeViewModel
-    @Environment(\.dismiss) var dismiss
-
-    @State private var playlistTitle = ""
-    @State private var playlistDescription = ""
-    @State private var coverImages = [String]()
-    @State private var creatorName = ""
+    @State private var playlistName: String = ""
+    @State private var playlistDescription: String = ""
 
     var body: some View {
         NavigationView {
-            Form {
-                Section(header: Text("Playlist Details")) {
-                    TextField("Title", text: $playlistTitle)
-                    TextField("Description", text: $playlistDescription)
-                    TextField("Creator", text: $creatorName)
-                }
+            VStack {
+                TextField("Playlist Name", text: $playlistName)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .padding()
+                TextField("Description", text: $playlistDescription)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .padding()
                 
-                Section(header: Text("Cover Images")) {
-                    Text("Add images dynamically")
+                Button(action: {
+                    if !playlistName.isEmpty {
+                        viewModel.addPlaylist(title: playlistName, description: playlistDescription)
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                }) {
+                    Text("Add Playlist")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
                 }
+                .padding()
+                
+                Spacer()
             }
             .navigationTitle("Add Playlist")
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        viewModel.addPlaylist(title: playlistTitle, description: playlistDescription, coverImages: ["cover1"], creator: creatorName)
-                        dismiss()
-                    }
-                }
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
-            }
         }
     }
 }
+

@@ -1,12 +1,5 @@
-//
-//  SpotifyHomeView.swift
-//  iOS Spotify Assignment
-//
-//  Created by Swapnil on 08/12/24.
-//
-
-
 import SwiftUI
+
 struct SpotifyHomeView: View {
     @StateObject private var viewModel = SpotifyHomeViewModel()
     @State private var showAddPlaylistView = false
@@ -61,16 +54,21 @@ struct SpotifyHomeView: View {
                         }
                         .padding()
                     }
+                    
                 }
             }
             .navigationBarHidden(true)
             .sheet(isPresented: $showAddPlaylistView) {
                 AddPlaylistView(viewModel: viewModel)
             }
+            .onAppear {
+                viewModel.loadPlaylists()
+            }
         }
     }
 }
 
+// Playlist Grid Item
 struct PlaylistGridItem: View {
     let playlist: Playlist
 
@@ -78,7 +76,7 @@ struct PlaylistGridItem: View {
         VStack {
             ZStack {
                 ForEach(playlist.coverImages.prefix(4), id: \.self) { imageName in
-                    Image(imageName)
+                    Image("image_playlist")
                         .resizable()
                         .scaledToFill()
                         .frame(width: 50, height: 50)
@@ -103,6 +101,7 @@ struct PlaylistGridItem: View {
     }
 }
 
+// Playlist List Item
 struct PlaylistListItem: View {
     let playlist: Playlist
 
@@ -110,7 +109,7 @@ struct PlaylistListItem: View {
         HStack {
             ZStack {
                 ForEach(playlist.coverImages.prefix(4), id: \.self) { imageName in
-                    Image(imageName)
+                    Image(systemName: "music.note")
                         .resizable()
                         .scaledToFill()
                         .frame(width: 50, height: 50)
@@ -136,6 +135,30 @@ struct PlaylistListItem: View {
     }
 }
 
+
 #Preview {
     SpotifyHomeView()
 }
+
+struct BottomTabBarView: View {
+    var body: some View {
+        TabView {
+            SpotifyHomeView()
+                .tabItem {
+                    Label("Home", systemImage: "house")
+                }
+
+            Text("Search View")
+                .tabItem {
+                    Label("Search", systemImage: "magnifyingglass")
+                }
+
+            SpotifyHomeView()
+                .tabItem {
+                    Label("Library", systemImage: "books.vertical")
+                }
+        }
+    }
+}
+
+

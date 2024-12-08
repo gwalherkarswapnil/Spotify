@@ -7,25 +7,35 @@
 
 
 import SwiftUI
-
+import Foundation
+// SpotifyHomeViewModel
 class SpotifyHomeViewModel: ObservableObject {
-    @Published var playlists: [Playlist] = [
-        Playlist(title: "My first library", description: "266 songs", coverImages: ["cover1", "cover2", "cover3", "cover4"], creator: "User"),
-        Playlist(title: "My second library", description: "58 songs", coverImages: ["cover5", "cover6", "cover7", "cover8"], creator: "Jhesy")
-    ]
-    
+    @Published var playlists: [Playlist] = []
     @Published var searchText: String = ""
     @Published var isGridView: Bool = true
 
     var filteredPlaylists: [Playlist] {
-        if searchText.isEmpty {
-            return playlists
-        } else {
-            return playlists.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
+        playlists.filter { playlist in
+            searchText.isEmpty || playlist.title.lowercased().contains(searchText.lowercased())
         }
     }
     
-    func addPlaylist(title: String, description: String, coverImages: [String], creator: String) {
-        playlists.append(Playlist(title: title, description: description, coverImages: coverImages, creator: creator))
+    func addPlaylist(title: String, description: String) {
+        let newPlaylist = Playlist(id: UUID(), title: title, description: description, coverImages: [])
+        playlists.append(newPlaylist)
+        savePlaylists()
+    }
+    
+    func loadPlaylists() {
+        if let data = UserDefaults.standard.data(forKey: "playlists"),
+           let decodedPlaylists = try? JSONDecoder().decode([Playlist].self, from: data) {
+            playlists = decodedPlaylists
+        }
+    }
+    
+    func savePlaylists() {
+        if let data = try? JSONEncoder().encode(playlists) {
+            UserDefaults.standard.set(data, forKey: "playlists")
+        }
     }
 }
